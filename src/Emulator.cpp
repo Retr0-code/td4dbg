@@ -63,20 +63,20 @@ namespace td4 {
     void Emulator::Load(uint8_t result) {
         uint8_t opcode{this->_program.at(this->_registers.PC)};
 
-        // LOAD3 !((CF || D4) && D67)
-        if (!((!this->_registers.CF || opcode & 0x10) && opcode & 0x40 && opcode & 0x80))
+        // LOAD3 ((CF || D4) && D67)
+        if (((!this->_registers.CF || opcode & 0x10) && opcode & 0x40 && opcode & 0x80))
             _registers.PC = result;
 
-        // LOAD2 !(D67)
-        if (!(opcode & 0x40 && opcode & 0x80))
+        // LOAD2 D67
+        if ((opcode & 0x40 && opcode & 0x80))
             this->_registers.OUT = result;
 
         // LOAD1 !D6 || D7
-        if (!(opcode & 0x40) || (opcode & 0x80))
+        if ((opcode & 0x40) && !(opcode & 0x80))
             this->_registers.B = result;
 
         // LOAD0 D6 || D7
-        if (opcode & 0xc0)
+        if (!(opcode & 0xc0))
             this->_registers.A = result;
     }
 }
