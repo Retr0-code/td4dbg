@@ -1,4 +1,7 @@
 #include <cstdio>
+#include <bitset>
+#include <iomanip>
+#include <iostream>
 #include "Emulator.hpp"
 
 namespace td4 {
@@ -6,13 +9,26 @@ namespace td4 {
     Registers::Registers(void)
         : A{0}, B{0}, CF{0}, PC{0}, IN{0}, OUT{0} {  }
 
+    std::ostream &operator<<(std::ostream &out, const Registers &registers) {
+        out << "A:\t" << std::bitset<4>(registers.A) << '\t'
+            << "B:\t" << std::bitset<4>(registers.B)  << '\n';
+        out << "CF:\t" << std::bitset<4>(registers.CF) << '\t'
+            << "PC:\t" << std::bitset<4>(registers.PC) << '\n';
+        out << "IN:\t" << std::bitset<4>(registers.IN) << '\t'
+            << "OUT:\t" << std::bitset<4>(registers.OUT) << '\n';
+        
+        return out;
+    }
+
     Emulator::Emulator(const Program &program)
         : _program{program} {
-            this->SetInputMethod([](Register& in) { std::scanf("%i", &in); });
+            this->SetInputMethod([](Register& in) {
+                std::puts("INPUT PORT:");
+                std::scanf("%i", &in);
+            });
         }
 
     const Registers &Emulator::Step(void) {
-        // Decode instruction
         this->Load(
             this->Add(
                 this->Select()
@@ -28,6 +44,17 @@ namespace td4 {
 
     void Emulator::SetInputMethod(const InputMethod &input) {
         this->_inputMethod = input;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const Emulator &emulator) {
+        uint8_t address{0};
+        for (auto opcode : emulator._program) {
+            out << std::bitset<4>(address) << std::setw(4) << std::setfill(' ')
+                << (emulator._registers.PC == address ? "=>" : "") << ' '
+                << std::bitset<4>(opcode >> 4) << ':' << std::bitset<4>(opcode) << '\n';
+            ++address;
+        }
+        return out;
     }
 
     Register Emulator::Select(void) {

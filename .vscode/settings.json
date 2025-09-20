@@ -63,6 +63,11 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "queue": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "bitset": "cpp",
+        "any": "cpp",
+        "cstring": "cpp",
+        "regex": "cpp",
+        "stack": "cpp"
     }
 }

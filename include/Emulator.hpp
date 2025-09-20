@@ -19,6 +19,8 @@ namespace td4 {
         Register OUT;
 
         Registers(void);
+
+        friend std::ostream &operator<<(std::ostream &out, const Registers &registers);
     };
 
     class Emulator {
@@ -31,6 +33,8 @@ namespace td4 {
         const Registers& Step(void);
 
         void SetInputMethod(const InputMethod& input);
+
+        friend std::ostream &operator<<(std::ostream &out, const Emulator &emulator);
 
     private:
         Register Select(void);
