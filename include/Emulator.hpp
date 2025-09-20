@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <functional>
 
+#include "Disassembler.hpp"
+
 #define PROGRAM_MAX_LEN 16
 
 namespace td4 {
@@ -46,6 +48,7 @@ namespace td4 {
     private:
         Program _program;
         InputMethod _inputMethod;
+        Disassembler _disassembler;
         Registers _registers;
     };
 

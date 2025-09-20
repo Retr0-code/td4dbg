@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <bitset>
 #include <iomanip>
-#include <iostream>
 #include "Emulator.hpp"
 
 namespace td4 {
@@ -51,7 +50,15 @@ namespace td4 {
         for (auto opcode : emulator._program) {
             out << std::bitset<4>(address) << std::setw(4) << std::setfill(' ')
                 << (emulator._registers.PC == address ? "=>" : "") << ' '
-                << std::bitset<4>(opcode >> 4) << ':' << std::bitset<4>(opcode) << '\n';
+                << std::bitset<4>(opcode >> 4) << ':' << std::bitset<4>(opcode) << '\t';
+                
+            Disassembler::OperatorCombination op{emulator._disassembler[opcode & 0xf0]};
+            out << op.second;
+            if (op.first)
+                out << std::bitset<4>(opcode);
+
+            out << std::endl;
+
             ++address;
         }
         return out;

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCES
     src/Emulator.cpp
+    src/Disassembler.cpp
     src/ConsoleInterface.cpp
     src/ConsoleVariables.cpp
 )

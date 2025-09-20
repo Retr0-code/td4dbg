@@ -94,7 +94,7 @@ int main(int argc, const char **argv) {
         td4::Registers status{emulator.Step()};
 
         std::cout << emulator << std::endl;
-        std::cout << status << std::flush;
+        std::cout << status << std::endl;
     }
     
     return 0;
