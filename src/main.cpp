@@ -43,6 +43,7 @@ int main(int argc, const char **argv) {
         fileSize = program.max_size();
 
     inputFile.seekg(std::ios::beg);
+    program.fill(0);
     inputFile.read(reinterpret_cast<char*>(program.data()), fileSize);
 
     td4::ConsoleInterface cli;

@@ -28,6 +28,7 @@ namespace td4 {
         }
 
     const Registers &Emulator::Step(void) {
+        this->_registers.CF = 0;
         this->Load(
             this->Add(
                 this->Select()
@@ -101,8 +102,8 @@ namespace td4 {
         if (((!this->_registers.CF || opcode & 0x10) && opcode & 0x40 && opcode & 0x80))
             _registers.PC = result;
 
-        // LOAD2 D67
-        if ((opcode & 0x40 && opcode & 0x80))
+        // LOAD2 !((!D6)7)
+        if ((!(opcode & 0x40) && opcode & 0x80))
             this->_registers.OUT = result;
 
         // LOAD1 !D6 || D7
