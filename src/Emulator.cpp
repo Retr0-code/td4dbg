@@ -89,10 +89,10 @@ namespace td4 {
     uint8_t Emulator::Add(Register operandLeft) {
         uint8_t immediate{this->_program.at(this->_registers.PC) & 0x0f};
         uint8_t result{operandLeft + immediate};
-        if (result >> 4)
+        if (result & 0xf0)
             this->_registers.CF = 1;
 
-        return (result + (result >> 4)) & 0x0f;
+        return result & 0x0f;
     }
 
     void Emulator::Load(uint8_t result) {
