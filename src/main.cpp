@@ -4,25 +4,11 @@
 #include <fstream>
 #include <iostream>
 
-#include <signal.h>
-
 #include "Emulator.hpp"
 #include "ConsoleInterface.hpp"
-#include "ConsoleVariables.hpp"
-
-static td4::ConVarPtr programStep = std::make_shared<td4::ConVarInt>();
-
-void StopSimulation(int) {
-    programStep->SetValue(std::any{0});
-    std::cout << std::endl;
-}
-
-#define CastFloat(value) std::any_cast<td4::ConVarFloat::Type>(value)
-#define CastInt(value) std::any_cast<td4::ConVarInt::Type>(value)
+#include "commands/CommandsIndex.hpp"
 
 int main(int argc, const char **argv) {
-    signal(SIGINT, &StopSimulation);
-
     using namespace std::chrono;
 
     if (argc != 2) {
@@ -47,55 +33,26 @@ int main(int argc, const char **argv) {
     inputFile.read(reinterpret_cast<char*>(program.data()), fileSize);
 
     td4::ConsoleInterface cli;
-    td4::ConVarPtr frequency = std::make_shared<td4::ConVarFloat>();
-    td4::ConVarPtr run = std::make_shared<td4::ConVarInt>();
-    td4::ConVarPtr quit = std::make_shared<td4::ConVarInt>();
-    cli.RegisterCommand("clock", frequency)
-       .RegisterCommand("step",  programStep)
-       .RegisterCommand("run",   run)
-       .RegisterCommand("quit",  quit);
+    td4::EmulatorPtr emulator{std::make_shared<td4::Emulator>(program)};
+    td4::DebuggerPtr debugger{std::make_shared<td4::Debugger>(emulator)};
+    bool quit{false};
 
-    td4::Emulator emulator(program);
-    std::cout << "Press ENTER to continue" << std::endl;
-    while (true) {
-        if (CastInt(**programStep) <= 0 || CastFloat(**frequency) == 0.f) {
+    cli.RegisterCommand<td4::CommandRun>("run", debugger)
+       .RegisterCommand<td4::CommandHelp>("help", debugger)
+       .RegisterCommand<td4::CommandStep>("step", debugger)
+       .RegisterCommand<td4::CommandQuit>("quit", debugger, &quit)
+       .RegisterCommand<td4::CommandBreak>("break", debugger)
+       .RegisterCommand<td4::CommandClear>("clear", debugger)
+       .RegisterCommand<td4::CommandExamine>("examine", debugger);
 
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            cli("run")->SetValue(std::any(0));
-            while (!CastInt(**run)) {
-                std::cout << "> " << std::flush;
-
-                try {
-                    cli.ReadCommand(std::cin);
-                    
-                    if (CastInt(**quit))
-                        break;
-
-                    if (CastInt(**programStep) && CastFloat(**frequency) == 0.f)
-                        break;
-
-                } catch (...) {
-                    std::cout << "Invalid command" << std::endl;
-                }
-            }
+    while (!quit) {
+        std::cout << "> ";
+        try {
+            cli.ExecuteCommand(std::cin);
+        } catch (const td4::UnknownCommand &err) {
+            std::cerr << err.what() << '\n';
+            std::cout << "Use \"help\" to get command reference.\n";
         }
-
-        if (CastInt(**quit))
-            break;
-        
-        steady_clock::time_point begin = steady_clock::now();
-        steady_clock::time_point end = begin;
-        while (CastFloat(**frequency) != 0.f &&
-            duration_cast<milliseconds>(end - begin).count() < 1000.f / CastFloat(**frequency))
-            
-            end = steady_clock::now();
-
-        programStep->SetValue(CastInt(**programStep) - 1);
-
-        td4::Registers status{emulator.Step()};
-
-        std::cout << emulator << std::endl;
-        std::cout << status << std::endl;
     }
     
     return 0;

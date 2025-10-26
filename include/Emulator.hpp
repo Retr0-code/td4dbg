@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <memory>
 #include <ostream>
 #include <cstdint>
 #include <functional>
@@ -33,6 +34,8 @@ namespace td4 {
         Emulator(const Program& program);
 
         const Registers& Step(void);
+        
+        const Registers& Info(void) const;
 
         void SetInputMethod(const InputMethod& input);
 
@@ -52,4 +55,5 @@ namespace td4 {
         Registers _registers;
     };
 
+    using EmulatorPtr = std::shared_ptr<Emulator>;
 }

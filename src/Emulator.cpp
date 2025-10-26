@@ -1,6 +1,6 @@
-#include <cstdio>
 #include <bitset>
 #include <iomanip>
+#include <iostream>
 #include "Emulator.hpp"
 
 namespace td4 {
@@ -22,8 +22,10 @@ namespace td4 {
     Emulator::Emulator(const Program &program)
         : _program{program} {
             this->SetInputMethod([](Register& in) {
-                std::puts("INPUT PORT:");
-                std::scanf("%i", &in);
+                int tmp = 0;
+                std::cout << "INPUT PORT: ";
+                std::cin >> tmp;
+                in = tmp & 0x0f;
             });
         }
 
@@ -39,6 +41,10 @@ namespace td4 {
         if (this->_registers.PC & 0xf0)
             this->_registers.PC = 0;
 
+        return this->_registers;
+    }
+
+    const Registers &Emulator::Info(void) const {
         return this->_registers;
     }
 

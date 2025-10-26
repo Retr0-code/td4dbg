@@ -1,28 +1,42 @@
 #pragma once
-#include <any>
 #include <string>
 #include <istream>
 #include <unordered_map>
-#include "IConsoleVariable.hpp"
+
+#include "Debugger.hpp"
+#include "commands/ICommand.hpp"
+
+#define CMD_HELP_SPACE_WIDTH 16
 
 namespace td4 {
 
     class ConsoleInterface {
     public:
-        ConsoleInterface(void) = default;
+        const ConsoleInterface &ExecuteCommand(const std::string &command, const std::vector<std::string> &arguments) const;
 
-        ConsoleInterface& ReadCommand(const std::string &command, const std::string &value);
+        const ConsoleInterface &ExecuteCommand(std::istream &stream) const;
 
-        ConsoleInterface& ReadCommand(std::istream &stream);
+        template <class T, class... F>
+        ConsoleInterface &RegisterCommand(const std::string &command, const DebuggerPtr &debugger, F... args) {
+            this->_commands.emplace(command, std::make_shared<T>(debugger, std::forward<F>(args)...));
+            return *this;
+        }
 
-        ConsoleInterface& RegisterCommand(const std::string &command, const ConVarPtr &variable);
+        CommandPtr operator[](const std::string &command);
 
-        std::any operator[](const std::string &command) const;
+        std::ostream &CommandsReference(std::ostream &stream) const;
 
-        ConVarPtr& operator()(const std::string &command);
-    
     private:
-        std::unordered_map<std::string, ConVarPtr> _commands;
+        std::unordered_map<std::string, CommandPtr> _commands;
     };
 
+    class UnknownCommand : public std::exception {
+    public:
+        UnknownCommand(const std::string &command);
+
+        const char *what(void) const throw() override;
+    
+    private:
+        std::string _message;
+    };
 }
