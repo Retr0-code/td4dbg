@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/debug/td4dbg",
-            "args": ["${workspaceFolder}/build/debug/out2.td4"],
+            "args": ["${workspaceFolder}/build/debug/out.td4m"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

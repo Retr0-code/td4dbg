@@ -10,6 +10,7 @@ set(SOURCES
     CommandQuit.cpp
     CommandBreak.cpp
     CommandClear.cpp
+    CommandList.cpp
     CommandExamine.cpp
 )
 

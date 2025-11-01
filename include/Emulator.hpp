@@ -7,19 +7,21 @@
 
 #include "Disassembler.hpp"
 
-#define PROGRAM_MAX_LEN 16
+#define PROGRAM_MAX_LEN 256
 
 namespace td4 {
 
     using Register = uint8_t;
 
     struct Registers {
-        Register A;
-        Register B;
-        Register CF;
-        Register PC;
-        Register IN;
-        Register OUT;
+        Register A;     // 4-bit register
+        Register B;     // 4-bit register
+        Register PC;    // 8-bit register
+        Register XY;    // 8-bit register
+        Register IN;    // 4-bit register
+        Register OUT;   // 4-bit register
+        Register CF;    // 1-bit register
+        Register ZF;    // 1-bit register
 
         Registers(void);
 
@@ -29,6 +31,7 @@ namespace td4 {
     class Emulator {
     public:
         using Program = std::array<uint8_t, PROGRAM_MAX_LEN>;
+        using RAM = std::array<uint8_t, PROGRAM_MAX_LEN>;
         using InputMethod = std::function<void (Register&)>;
 
         Emulator(const Program& program);
@@ -37,22 +40,29 @@ namespace td4 {
         
         const Registers& Info(void) const;
 
+        std::stringstream ListInstruction(uint8_t address) const;
+
+        std::stringstream List(uint8_t maxOutput) const;
+        
+        const RAM& Ram(void) const;
+
         void SetInputMethod(const InputMethod& input);
 
         friend std::ostream &operator<<(std::ostream &out, const Emulator &emulator);
 
-    private:
+    private:        
         Register Select(void);
         
-        uint8_t Add(Register operandLeft);
+        uint8_t ALU(Register operandLeft);
 
         void Load(uint8_t result);
 
     private:
-        Program _program;
-        InputMethod _inputMethod;
+        Program      _program;
+        RAM          _ram;
+        InputMethod  _inputMethod;
         Disassembler _disassembler;
-        Registers _registers;
+        Registers    _registers;
     };
 
     using EmulatorPtr = std::shared_ptr<Emulator>;

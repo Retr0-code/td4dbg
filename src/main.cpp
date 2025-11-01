@@ -43,6 +43,7 @@ int main(int argc, const char **argv) {
        .RegisterCommand<td4::CommandQuit>("quit", debugger, &quit)
        .RegisterCommand<td4::CommandBreak>("break", debugger)
        .RegisterCommand<td4::CommandClear>("clear", debugger)
+       .RegisterCommand<td4::CommandList>("list", debugger)
        .RegisterCommand<td4::CommandExamine>("examine", debugger);
 
     while (!quit) {
